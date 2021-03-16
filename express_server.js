@@ -15,6 +15,17 @@ app.get("/", (req, res) => {   //Notice the line of code that registers a handle
   res.send("Hello!");
 });
 
+app.get("/urls.json", (req, res) => {          // add additional endpoints - 
+  res.json(urlDatabase);
+});
+
+//Add the following route:
+app.get("/hello", (req, res) => {
+  res.send("<html><body>Hello <b>World</b></body></html>\n");
+});
+
+
+
 app.listen(PORT,() => {
   console.log(`Example app listening on port ${PORT}!`);
 });
