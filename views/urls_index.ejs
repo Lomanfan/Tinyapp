@@ -26,11 +26,9 @@
           <tr>  <!-- table row-->
             <td><%= url %></td>  <!--table column-->
             <td><%= urls[url] %></td>
-            <td><form method="POST" action="/urls/:editURL">
-              <!--post request >>req.body has the data; since no input fild, so hidden-->
-            <input type="hidden" name="editURL" value="<%= url %>"/>
-            <button type="submit" value="edit">Edit</button>
-            </form></td>
+            <td>
+            <a href="/urls/<%= url %>" >Edit</a>
+            </td>
             <td><form method="POST" action="/urls/delete">
    <!--post request >>req.body has the data; since no input fild, so hidden-->
               <input type="hidden" name="shortURL" value="<%= url %>"/>
