@@ -42,15 +42,16 @@ const generateRandomString = () => {
   return shortURl;
 };    
 
-app.post("/login", (req,res) => {    //????added to header partial, any changes to make to page depandences?
+app.post("/login", (req,res) => {       //Login
   const username = req.body.username;
-  res.cookie('username', username);     ///????cookies application grey out???
-  res.redirect(`/urls`);                 //TO-DO:check cookie Name and the Value, make sure remain set, and no change for new user submition
+  res.cookie('username', username);
+  res.redirect(`/urls`);
 });
 
 //Use cURL to inspect the response from the new route
 //Terminal Testing with: curl -X POST -i localhost:8080/login -d "username=vanillaice"
 //The -d flag is used to send form data in the same way a browser would when submitting our login form.
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -60,24 +61,30 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });  
 
-app.get("/urls",(req, res) => {
-  const templateVars = { urls: urlDatabase };
+app.get("/urls",(req, res) => {             //Render: My URL account info
+  const templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render("urls_index",templateVars);
-});  
+});
 
+app.post("/logout", (req,res) => {           //Logout -- Logout ok, but still showing account info
+const username = req.body.username;
+res.clearCookie('username', username);
+  // clear the cookie
+res.redirect("/urls");  
+});
 
-app.post("/urls/delete", (req, res) => {
+app.post("/urls/delete", (req, res) => {       //Delete
   const shortURL = req.body.shortURL;
   // console.log(shortURL);
   // console.log("params",req.params);
   // console.log("body", req.body);
   delete urlDatabase[shortURL];
-  const templateVars = { urls: urlDatabase };
-  res.render("urls_index",templateVars);
-});  
+  res.redirect("/urls");
+});
 
 app.get("/urls/new", (req, res) => {   //Read Create TinyURL page
-  res.render("urls_new");
+  const templateVars = { username: req.cookies.username };
+  res.render("urls_new", templateVars);
 });  
 
 //Shortening URL & Update Database
@@ -95,7 +102,7 @@ app.post("/urls/new", (req, res) => {    //Creat - short URL from Long & Edit Su
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username };
   res.render("urls_show", templateVars);
 });  
 
@@ -119,14 +126,11 @@ app.post("/urls/:editURL", (req, res) => {  //URL Edit on ShortURL page & Update
 app.post("/urls/:id/editURL", (req,res) => {
 const newLongURL = req.body.newLongURL;
 const id = req.body.id;
-console.log(urlDatabase[id]);
-delete urlDatabase[id];
+// console.log(urlDatabase[id]);
 urlDatabase[id] = newLongURL;
-console.log(urlDatabase[id]);
-const templateVars = { urls: urlDatabase }
-res.render("urls_index", templateVars);
+// console.log(urlDatabase[id]);
+res.redirect("/urls");
 });
-
 
 // app.get("/hello", (req, res) => {
   //   res.send("<html><body>Hello <b>World</b></body></html>\n");    
