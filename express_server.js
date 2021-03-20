@@ -1,5 +1,3 @@
-//Creating Web Server with Express
-//Use local host: http://localhost:8080/
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -22,35 +20,102 @@ const urlDatabase = {
 
 
 const users = {
-  '2cc689cc': {     //random id 8 digits
-    id: '2cc689cc',
-    name: 'Happy Face',
-    email: 'really.dont.care@happyface.com',
-    password: 'keeysmiling',
+  '2cc689': {     //random id 8 digits
+    id: '2cc689',
+    name: 'HappyFace',
+    email: 'smilie001@happyface.com',
+    password: 'keepsmiling',
   },
-  '2cc689cd': {
-    id: '2cc689cd',
-    name: 'Grumpy Cat',
+  '2cc688': {
+    id: '2cc688',
+    name: 'GrumpyCat',
     email: 'goodmorning.nosuchthing@fish.ca',
     password: 'whereismycoffee',
-  },
+  }
 };
 
-
-const generateRandomString = () => {
+const generateRandomString = () => {   //Create for shortern URL & Random ID
   const shortURl = Math.random().toString(36).substring(2,8);
   return shortURl;
-};    
+};
+
+const findUser = (email) => {           //Find user account for login or register
+for(const userId in users) {
+  if(users[userId].email === email) {
+    return users[userId];
+    }
+  }
+  return false;
+};
+
+const loginAuth = (email, password) => {
+  const user = findUser(email);
+  if (user && user.password === password) {
+    return user.id;
+  }
+  return false;
+};
+
+app.get("/login", (req, res) => {            //Navigate to login page
+  const templateVars = { username: null };
+  res.render('urls_login', templateVars);
+});
+
 
 app.post("/login", (req,res) => {       //Login
-  const username = req.body.username;
-  res.cookie('username', username);
-  res.redirect(`/urls`);
+  console.log(req.body.email, req.body.password);
+  const email = req.body.email;
+  const password = req.body.password;
+  const userId = loginAuth(email, password);
+  if (userId) {
+    res.cookie("user_id", userId);
+    res.redirect("/urls");
+  } else {
+    res.status(401).send("Hi there~ Please enter valid username or password. Not an user yet? Return to previous page & Sign up today~!")
+  }
 });
+
 
 //Use cURL to inspect the response from the new route
 //Terminal Testing with: curl -X POST -i localhost:8080/login -d "username=vanillaice"
 //The -d flag is used to send form data in the same way a browser would when submitting our login form.
+
+
+app.get("/register", (req,res) => {       //Navigate to Register Page
+  const username = req.body.username;
+  const templateVars = {
+    username: username
+  };
+  res.render("urls_register", templateVars);
+});
+
+const addNewUser = (name, email, password) => {
+  const userId = generateRandomString();
+  const newUser = {
+    id: userId,
+    name,
+    email,
+    password,
+  };
+  users[userId] = newUser;
+
+  return userId;
+};
+
+app.post("/register", (req, res) => {      //New User Register
+  const name = req.body.username;
+  const email =req.body.email;
+  const password = req.body.password;
+  const user = findUser(email);            //For-loop to check if email exit
+
+  if(!user) {
+    const userId = addNewUser(name, email, password);  //Callback addNewUser(generate id, add user) & set cookie
+    res.cookie('user_id', userId);
+    res.redirect('/login');
+  } else {
+    res.status(403).send("This email already exits.")
+  }
+});
 
 
 app.get("/", (req, res) => {
@@ -62,7 +127,10 @@ app.get("/urls.json", (req, res) => {
 });  
 
 app.get("/urls",(req, res) => {             //Render: My URL account info
-  const templateVars = { urls: urlDatabase, username: req.cookies.username };
+  const templateVars = { 
+    urls: urlDatabase, 
+    username: req.cookies.username 
+  };
   res.render("urls_index",templateVars);
 });
 
@@ -75,7 +143,6 @@ res.redirect("/urls");
 
 app.post("/urls/delete", (req, res) => {       //Delete
   const shortURL = req.body.shortURL;
-  // console.log(shortURL);
   // console.log("params",req.params);
   // console.log("body", req.body);
   delete urlDatabase[shortURL];
@@ -83,7 +150,9 @@ app.post("/urls/delete", (req, res) => {       //Delete
 });
 
 app.get("/urls/new", (req, res) => {   //Read Create TinyURL page
-  const templateVars = { username: req.cookies.username };
+  const templateVars = { 
+    username: req.cookies.username 
+  };
   res.render("urls_new", templateVars);
 });  
 
@@ -102,7 +171,11 @@ app.post("/urls/new", (req, res) => {    //Creat - short URL from Long & Edit Su
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username };
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL], 
+    username: req.cookies.username 
+  };
   res.render("urls_show", templateVars);
 });  
 
@@ -119,7 +192,11 @@ app.post("/urls/:editURL", (req, res) => {  //URL Edit on ShortURL page & Update
   // // /urlDatabase[shortURL];
   // urlDatabase[editURL] = newLongURL;
   // // console.log("shortURL", shortURL);
-  const templateVars = { urls: urlDatabase, longURL: urlDatabase[editURL], shortURL: editURL};
+  const templateVars = { 
+    urls: urlDatabase, 
+    longURL: urlDatabase[editURL], 
+    shortURL: editURL
+  };
   res.render("urls_show",templateVars);
 });
 
@@ -137,10 +214,11 @@ res.redirect("/urls");
   // });
   
   app.get("/hello/", (req,res) => {
-    const templateVars = { greeting: 'Hello World!'};
+    const templateVars = { 
+      greeting: 'Hello World!'
+    };
     res.render("hello_world", templateVars);
   });    
-  
   
   
   app.listen(PORT,() => {
