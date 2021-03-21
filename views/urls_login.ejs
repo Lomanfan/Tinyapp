@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <nav class="navbar navbar-expand-md navbar-dark bg-success"></nav>
-  <a class="font-weight-normal">Welcome to TinyApp~!</a>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
-    integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
-  <title> TinyApp </title>
-</head>
-<body>
+  <head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="Lighthouses Lab, HTML, CSS, JavaScript">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title> TinyApp </title>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark bg-success">
+      <a class="navbar-brand" href="/login">Welcome to TinyApp~!</a>
+    </header>
     <main style="margin: 1em;">
-      <div class="card text-center" style="width: 70%">
-        <div class="card-body">
-          <h5 class="card-title">Login</h5>
-          <form method="POST" action="/login">
-            <input class="form-control w-70 m-auto" type="email" placeholder="Enter Email" name="email">
+      <h5>Login</h5>
+         <div class="collapse navbar-collapse" id="navbarNavAltMarkup" style="display: flex; justify-content: space-between;">
+         <form method="POST" action="/login">
+            <input class="form-control w-70 m-auto" type="email" placeholder="Enter Email" name="email" style="width: 300px; margin: 1em">
             <br/>
-            <input class="form-control w-70 m-auto" type="password" placeholder="Enter Password" name="password">
+            <input class="form-control w-70 m-auto" type="password" placeholder="Enter Password" name="password" style="width: 300px; margin: 1em">
             <br/>
             <button type="submit" class="btn btn-success">Login</button>
+            <div>
+            <a class="font-weight-light" href="/register">New User Register</a>
+            </div>
         </div>
         </form>
-        <div>
-          <a class="font-weight-light" href="/register">New User Register</a>
-        </div>
-      </div>
     </main>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
       integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
