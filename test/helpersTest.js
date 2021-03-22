@@ -1,24 +1,33 @@
 const { assert } = require('chai');
 
-const { getUserByEmail } = require('../helpers.js');
+const { findUserByEmail } = require('../helpers/helpers.js');
 
 const testUsers = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
   "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
+    id: "user2RandomID",
+    email: "user2@example.com",
     password: "dishwasher-funk"
   }
 };
 
-describe('getUserByEmail', function() {
-  it('should return a user with valid email', function() {
-    const user = getUserByEmail("user@example.com", users)
+describe('findUserByEmail', function() {
+  it('should return a user with valid id when passing in an email', function () {
+    const user = findUserByEmail("user@example.com", testUsers);
     const expectedOutput = "userRandomID";
-    // Write your assert statement here
+    assert.equal(expectedOutput, user);
   });
+
+
+  it('should return false when passing in an invalid email', function() {
+    const user = findUserByEmail("user1122@example.com", testUsers);
+    const expectedOutput = false;
+    assert.equal(expectedOutput, user);
+  });
+
 });
+

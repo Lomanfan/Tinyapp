@@ -9,7 +9,7 @@ const findUserById = (users, id) => {
   return false;
 };
 
-const findUserByEmail = (email, users) => {           //Find user account for login or register
+const findUserByEmail = (email, users) => {
   for (const userId in users) {
     if (users[userId].email === email) {
       return users[userId].id;
@@ -18,7 +18,7 @@ const findUserByEmail = (email, users) => {           //Find user account for lo
   return false;
 };
 
-const generateRandomString = () => {   //Create for shortern URL & Random ID
+const generateRandomString = () => {
   const shortURl = Math.random().toString(36).substring(2, 8);
   return shortURl;
 };

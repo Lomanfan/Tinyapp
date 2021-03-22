@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 8080;
 const { restart } = require('nodemon');
 const { response } = require("express");
 const bcrypt = require('bcryptjs');
-const { urlsForUser, findUserById, findUserByEmail, generateRandomString } = require("./helpers");
+const { urlsForUser, findUserById, findUserByEmail, generateRandomString } = require("./helpers/helpers");
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -38,12 +38,12 @@ const users = {
   }
 };
 
-//GET Routes:
 
+//GET ROUTES:
 app.get("/", (req, res) => {
   const userId = req.session.user_id;
   if (!userId) {
-  res.redirect("/login");  //If not login, redirect to login page. 
+  res.redirect("/login");  //If not login, redirect to login page
   return;
   }
   res.redirect('urls'); 
@@ -69,11 +69,11 @@ app.get("/urls", (req, res) => {            //My URL Account Page
 });
 
 
-app.get("/urls/new", (req, res) => {   //Create new TinyURL Page
+app.get("/urls/new", (req, res) => {       //Create new TinyURL Page
   const id = req.session.user_id
   const user = findUserById(users, id);
 
-  if (!id || !user) {
+  if (!id || !user) {                       //If user is not logged in, redirect to login page
     res.redirect("/login");
     return;
   }
@@ -86,7 +86,13 @@ app.get("/urls/new", (req, res) => {   //Create new TinyURL Page
 });
 
 
-app.get("/login", (req, res) => {
+app.get("/login", (req, res) => {        //If user is logged in, direct to main page; else return to login page
+  const id = req.session.user_id;
+  const user = findUserById(users, id);
+  if (user) {
+    res.redirect("/urls");
+    return;
+  }
   const templateVars = { username: null };
   res.render('urls_login', templateVars);
 });  
@@ -101,7 +107,7 @@ app.get("/register", (req, res) => {       //Register Page
 });  
 
 
-app.get("/urls/:shortURL", (req, res) => {    ///NOT WORKING
+app.get("/urls/:shortURL", (req, res) => {  //Logged in users can see the URLs created in their account.
   const id = req.session.user_id;
   const user = findUserById(users, id);
   const shortURL = req.params.shortURL;
@@ -113,7 +119,7 @@ app.get("/urls/:shortURL", (req, res) => {    ///NOT WORKING
       return;
     }
 
-  if (!longURL) {
+  if (!longURL) {     //If user makes a get request with an URL that is not in their account, response with an error message.
     res.send(`There's no record of this shortURL: ${shortURL} in your account.`)
     return;
     }
@@ -129,15 +135,27 @@ app.get("/urls/:shortURL", (req, res) => {    ///NOT WORKING
 });
 
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {  //If URL of given ID exists redirect to longURL, or response with error message.
 const shortURL = req.params.shortURL;
-const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
-console.log({shortURL, longURL, urlDatabase});
+const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;   //Locate corresponding longURL in account
+
  if (longURL) {
     res.redirect(longURL);
     return;
   }
-  res.send("No record of this url.");
+  res.send("No record of this url in account.");
+});
+
+
+
+
+//POST ROUTES:
+
+app.post("/urls/:id/editURL", (req, res) => {      //Edit longURL in account
+  const newLongURL = req.body.newLongURL;
+  const id = req.body.id;
+  urlDatabase[id].longURL = newLongURL;
+  res.redirect("/urls");
 });
 
 
@@ -159,11 +177,6 @@ app.post("/login", (req, res) => {       //Login Authorization
       }
     });
 });
-
-
-//Use cURL to inspect the response from the new route
-//Terminal Testing with: curl -X POST -i localhost:8080/login -d "username=vanillaice"
-//The -d flag is used to send form data in the same way a browser would when submitting our login form.
 
 
 app.post("/register", (req, res) => {      //New User Register
@@ -202,53 +215,41 @@ app.post("/register", (req, res) => {      //New User Register
 });
 
 
-app.post("/logout", (req, res) => {           //Logout
+app.post("/logout", (req, res) => {           //Logout and delete cookie
   const id = req.session.user_id;
   req.session = null;
   res.redirect("/urls");
 });
 
-app.post("/urls/delete", (req, res) => {       //Delete
+
+app.post("/urls/:id/delete", (req, res) => {     //Delete, only logged in user that owns the URL can delete the URL.
+  const id = req.session.user_id;
+  const user = findUserById(users, id);
   const shortURL = req.body.shortURL;
-  // console.log("params",req.params);
-  // console.log("body", req.body);
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  const userUrls = urlsForUser(id, urlDatabase);
+
+  if (user && userUrls[shortURL]) {
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  }
+    res.send("No record found of this shortURL.");
 });
 
 
-app.post("/urls/new", (req, res) => {     //Create short URL & Add to account
+app.post("/urls/new", (req, res) => {     //Create short URL and add to database
   const id = req.session.user_id;
   const userUrls = urlsForUser(id, urlDatabase);
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-
+  
+  if(longURL) {
   urlDatabase[shortURL] = { longURL: longURL, userID: id };
-
   res.redirect("/urls");
   return;
+  }
+  res.send("Please enter longURL.")
 });
 
-
-app.get("/urls/:id", (req, res) => {  //URL Edit on ShortURL page & Update Database
-  const editURL = req.params.id;
-  console.log("editURL", editURL);
-
-  const templateVars = {
-    urls: urlDatabase,
-    longURL: urlDatabase[editURL],
-    shortURL: editURL
-  };
-  res.render("urls_show", templateVars);
-});
-
-
-app.post("/urls/:id/editURL", (req, res) => {
-  const newLongURL = req.body.newLongURL;
-  const id = req.body.id;
-  urlDatabase[id].longURL = newLongURL;
-  res.redirect("/urls");
-});
 
 
 app.listen(PORT, () => {
