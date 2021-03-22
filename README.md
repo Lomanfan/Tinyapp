@@ -14,7 +14,7 @@ Create TinyURL
 !["Create TinyURL"](https://github.com/Lomanfan/tinyapp/blob/master/docs/create%20tinyURL%20page.jpg)
 
 Login Page
-!["Login Page"](https://github.com/Lomanfan/tinyapp/blob/master/docs/TinyApp%20Login%20Page.jpg)
+!["Login Page"](https://github.com/Lomanfan/tinyapp/blob/master/docs/tinyApp%20Login%20Page.jpg)
 
 Register Page
 !["Register Page"](https://github.com/Lomanfan/tinyapp/blob/master/docs/TinyApp%20Register%20Page.jpg)
