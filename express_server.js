@@ -60,11 +60,19 @@ app.post("/urls", (req, res) => {                //create newURL on page /urls/n
   res.redirect(`/urls/${shortURL}`);
 });
         
-app.post("/urls/:shortURL/delete", (req, res) => {
+
+app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
   const shortURL = req.params.shortURL;
   console.log(req.params);
   delete urlDatabase[shortURL];
   res.redirect("/urls");
+});
+
+
+app.post("/urls/:shortURL", (req, res) => {          //edit URL
+  const newLongURL = req.body.newLongURL;
+  urlDatabase[req.params.shortURL] = newLongURL;
+  res.redirect('/urls');
 });
 
 
