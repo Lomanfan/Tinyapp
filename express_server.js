@@ -1,6 +1,6 @@
 const express = require("express");
-const app = express();
 const bodyParser = require("body-parser");
+const app = express();
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 
@@ -60,7 +60,15 @@ app.post("/urls", (req, res) => {                //create newURL on page /urls/n
   res.redirect(`/urls/${shortURL}`);
 });
         
-        
+app.post("/urls/:shortURL/delete", (req, res) => {
+  const shortURL = req.params.shortURL;
+  console.log(req.params);
+  delete urlDatabase[shortURL];
+  res.redirect("/urls");
+});
+
+
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
@@ -91,4 +99,5 @@ app.listen(PORT, () => {
         //curl -i http://localhost:8080/hello
         //curl -i http://localhost:8080/u/b2xVn2
         //curl -L http://localhost:8080/u/b2xVn2
+        //curl -X POST "http://localhost:8080/urls/9sm5xK/delete" //delete from curl
         //the HTML content that the /hello path responds with: <html><body>Hello <b>World</b></body></html>

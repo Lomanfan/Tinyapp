@@ -17,13 +17,20 @@
         <tr>
           <th scope="col">Short URL</th>
           <th scope="col">Long URL</th>
+          <th scope="col">Delete</th>
         </tr>
       </thead>
       <tbody>
         <% for(let url in urls) { %>
           <tr>
-            <td><%= url %></td>
-            <td><%= urls[url] %></td>
+
+            <form method="POST" action="/urls/<%=url%>/delete">
+              <td><%= url %></td>
+              <td><%= urls[url] %></td>
+              <td><button>Delete</button></td>
+            </form>
+
+
           </tr>
         <% } %>
       </tbody>
