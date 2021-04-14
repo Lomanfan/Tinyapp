@@ -11,10 +11,27 @@ app.use(cookieParser());
 
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+  b2xVn2: { longURL: "https://http.cat", userID: "2cc688" },
+  b2xXXX: { longURL: "https://goofygoat.ca", userID: "2cc689" },
 };
 
+
+const users = {
+  '2cc689': {
+    id: '2cc689',
+    name: 'GoofyGoat',
+    email: 'smilie001@sillygoof.com',
+    password: 'Meh-meh',     //password has been encrypted
+  },
+  '2cc688': {
+    id: '2cc688',
+    name: 'GrumpyCat',
+    email: 'goodmorning.nosuchthing@fish.ca',
+    password: 'whereismycoffee',  //password has been encrypted
+  }
+};
 
 const generateRandomString = () => {
   const shortURL = Math.random().toString(36).substring(2,8);
@@ -26,6 +43,10 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+
+app.get("/register",(req,res) => {
+  res.render("urls_register");
+});
 
 
 app.get("/urls", (req, res) => {
@@ -60,7 +81,31 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[shortURL];
   res.redirect(longURL);
 });
-        
+
+
+app.post("/register",(req, res) => {
+  const {name, email, password} = req.body;
+  const userId = generateRandomString();
+
+  users[userId] = {                            //add new user
+    id: userId,
+    name,
+    email,
+    password
+  };
+
+  console.log(users);
+
+  res.cookie("user_id", userId);              //user_id cookie with new generated ID
+
+//check user_id cookie
+
+res.redirect("/urls");
+
+});
+
+
+
         
 app.post("/urls", (req, res) => {                //create newURL on page /urls/new
   const longURL = req.body.longURL;
@@ -71,7 +116,6 @@ app.post("/urls", (req, res) => {                //create newURL on page /urls/n
   res.redirect(`/urls/${shortURL}`);
 });
         
-
 app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
   const shortURL = req.params.shortURL;
   console.log(req.params);
