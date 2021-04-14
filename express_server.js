@@ -1,10 +1,13 @@
 const express = require("express");
-const bodyParser = require("body-parser");
 const app = express();
-app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({extended: true}));
-
 const PORT = 8080;
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+app.set("view engine", "ejs");
+// app.use(morgan("dev"));
+
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
 
 const urlDatabase = {
@@ -24,21 +27,29 @@ app.get("/", (req, res) => {
 });
 
 
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = {                     
+    urls: urlDatabase, 
+    username: req.cookies["username"]                         //added cookie info for rendering account home page
+  };        
   res.render("urls_index", templateVars);
 });
 
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = {
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
 });
 
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL]
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
   };
   res.render("urls_show", templateVars);
 });
@@ -76,9 +87,26 @@ app.post("/urls/:shortURL", (req, res) => {          //edit URL
 });
 
 
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie("username", username);                //set cookie to username when press login button (no login page yet)
+  res.redirect("/urls");
+});
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");                      //clear cookie when logout
+  res.redirect("urls");
+});
+
+
+
+app.listen(PORT, (err) => {
+  if(err) {
+    console.log(err);
+  } else {
+    console.log(`Example app listening on port ${PORT}!`);
+  }
 });
         
 
@@ -108,4 +136,5 @@ app.listen(PORT, () => {
         //curl -i http://localhost:8080/u/b2xVn2
         //curl -L http://localhost:8080/u/b2xVn2
         //curl -X POST "http://localhost:8080/urls/9sm5xK/delete" //delete from curl
+        //curl -X POST http://example.com/api/endpoint // make a post request
         //the HTML content that the /hello path responds with: <html><body>Hello <b>World</b></body></html>
