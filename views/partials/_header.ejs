@@ -13,14 +13,11 @@
         <% if (user) { %>
           <form method="POST" action="/logout">
               <label>Welcome~ <%= user.name %></label>
-          <button class="btn btn-primary">Logout</button>
+          <button class="btn btn-primary" value=logout>Logout</button>
         </form>
       </div>
       <% } else { %>
-        <form method="POST" action="/login">
-          <input type="text" name="username" placeholder="Username">
-          <button class="btn btn-primary">Login</button>
-        </form>
+        <a href='/login'>Login</a> | <a href='/register'>Register</a>    
       <% } %>
     </div>
   </nav>
