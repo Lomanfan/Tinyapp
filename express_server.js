@@ -50,6 +50,12 @@ app.get("/register",(req,res) => {
 });
 
 
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+})
+
+
+
 app.get("/urls", (req, res) => {
   const userId = req.cookies["user_id"];                         //added cookie info for rendering account home page
   const user = users[userId];
