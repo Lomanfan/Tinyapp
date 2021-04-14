@@ -50,27 +50,34 @@ app.get("/register",(req,res) => {
 
 
 app.get("/urls", (req, res) => {
+  const userId = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const user = users[userId];
   const templateVars = {                     
-    urls: urlDatabase, 
-    username: req.cookies["username"]                         //added cookie info for rendering account home page
-  };        
+    urls: urlDatabase,
+    user
+  };
   res.render("urls_index", templateVars);
 });
 
 
 app.get("/urls/new", (req, res) => {
+  const userId = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const user = users[userId];
   const templateVars = {
-    username: req.cookies["username"]
+    user
   };
   res.render("urls_new", templateVars);
 });
 
 
 app.get("/urls/:shortURL", (req, res) => {
+  const userId = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const user = users[userId];
+
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
-    username: req.cookies["username"]
+    user
   };
   res.render("urls_show", templateVars);
 });
@@ -84,7 +91,8 @@ app.get("/u/:shortURL", (req, res) => {
 
 
 app.post("/register",(req, res) => {
-  const {name, email, password} = req.body;
+  const name = req.body.username;
+  const {email, password} = req.body;
   const userId = generateRandomString();
 
   users[userId] = {                            //add new user
@@ -106,7 +114,6 @@ res.redirect("/urls");
 
 
 
-        
 app.post("/urls", (req, res) => {                //create newURL on page /urls/new
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
@@ -132,6 +139,7 @@ app.post("/urls/:shortURL", (req, res) => {          //edit URL
 
 
 app.post("/login", (req, res) => {
+
   const username = req.body.username;
   res.cookie("username", username);                //set cookie to username when press login button (no login page yet)
   res.redirect("/urls");
@@ -139,7 +147,7 @@ app.post("/login", (req, res) => {
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");                      //clear cookie when logout
+  res.clearCookie("user_id");                      //clear cookie when logout
   res.redirect("urls");
 });
 
