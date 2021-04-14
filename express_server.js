@@ -7,7 +7,6 @@ app.set("view engine", "ejs");
 // app.use(morgan("dev"));
 
 const cookieParser = require("cookie-parser");
-const { findUserByEmail } = require("./helpers/helpers");
 app.use(cookieParser());
 
 
@@ -97,7 +96,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-const findUserByEmail2 = (email, users) => {
+const findUserByEmail = (email, users) => {
   for (const userId in users ) {
     if (users[userId].email === email) {                    // FOR IN LOOP????
       return users[userId].id;
@@ -106,10 +105,11 @@ const findUserByEmail2 = (email, users) => {
   return false;
 };
 
+
 app.post("/register",(req, res) => {
   const name = req.body.username;
   const {email, password} = req.body;
-  const user = findUserByEmail2(email, users);
+  const user = findUserByEmail(email, users);
   
   if (!name || !email || !password) {
     res.status(400).send("Please complete registration form to proceed.");
@@ -132,10 +132,30 @@ app.post("/register",(req, res) => {
   }
 
   if (user) {
-    res.status(403).send("If you are a current user, please return to login page.");
+    res.status(400).send("If you are a current user, please return to login page.");
   }
 
 });
+
+
+
+app.post("/login", (req, res) => {
+  const {email, password} = req.body;
+  const userId = findUserByEmail(email, users);
+
+  if (!userId) {
+    res.status(403).send("Not an user yet? Return to previous page & Sign up today~!");
+  }
+  
+  if (userId && password === users[userId].password) {
+    res.cookie("user_id", userId);             //set cookie to username when press login button (no login page yet)
+    res.redirect("/urls");
+  }
+
+  res.status(403).send("Hi there~ Please enter valid username and password. Not an user yet? Return to previous page & Sign up today~!")
+});
+
+
 
 
 app.post("/urls", (req, res) => {                //create newURL on page /urls/new
@@ -161,13 +181,6 @@ app.post("/urls/:shortURL", (req, res) => {          //edit URL
   res.redirect('/urls');
 });
 
-
-app.post("/login", (req, res) => {
-
-  const username = req.body.username;
-  res.cookie("username", username);                //set cookie to username when press login button (no login page yet)
-  res.redirect("/urls");
-});
 
 
 app.post("/logout", (req, res) => {
