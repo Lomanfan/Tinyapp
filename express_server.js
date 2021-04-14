@@ -7,6 +7,7 @@ app.set("view engine", "ejs");
 // app.use(morgan("dev"));
 
 const cookieParser = require("cookie-parser");
+const { findUserByEmail } = require("./helpers/helpers");
 app.use(cookieParser());
 
 
@@ -90,28 +91,45 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
+const findUserByEmail2 = (email, users) => {
+  for (const userId in users ) {
+    if (users[userId].email === email) {                    // FOR IN LOOP????
+      return users[userId].id;
+    }
+  }
+  return false;
+};
+
 app.post("/register",(req, res) => {
   const name = req.body.username;
   const {email, password} = req.body;
-  const userId = generateRandomString();
+  const user = findUserByEmail2(email, users);
+  
+  if (!name || !email || !password) {
+    res.status(400).send("Please complete registration form to proceed.");
+  }
+  
+  if (!user) {
+    if (name, email, password) {
+      const userId = generateRandomString();
+      users[userId] = {                            //add new user
+        id: userId,
+        name,
+        email,
+        password
+      };
+      console.log("register route new user",users);
+      res.cookie("user_id", userId);           //user_id cookie with new generated ID
+      res.redirect("/urls");
+      return;
+    }
+  }
 
-  users[userId] = {                            //add new user
-    id: userId,
-    name,
-    email,
-    password
-  };
-
-  console.log(users);
-
-  res.cookie("user_id", userId);              //user_id cookie with new generated ID
-
-//check user_id cookie
-
-res.redirect("/urls");
+  if (user) {
+    res.status(403).send("If you are a current user, please return to login page.");
+  }
 
 });
-
 
 
 app.post("/urls", (req, res) => {                //create newURL on page /urls/new
@@ -150,7 +168,6 @@ app.post("/logout", (req, res) => {
   res.clearCookie("user_id");                      //clear cookie when logout
   res.redirect("urls");
 });
-
 
 
 app.listen(PORT, (err) => {
