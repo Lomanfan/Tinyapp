@@ -47,6 +47,17 @@ const findUserById = (id, users) => {
 };
 
 
+const urlsForUser = (cookieId, urlDatabase) => {
+  const userUrls = {};
+  for (const shortUrl in urlDatabase) {
+    if (urlDatabase[shortUrl].userID === cookieId) {
+      userUrls[shortUrl] = urlDatabase[shortUrl];
+    }
+  }
+  return userUrls;
+};
+
+
 app.get("/", (req, res) => {
   const id = req.cookies["user_id"];
   if(!id) {
@@ -59,14 +70,21 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   const id = req.cookies["user_id"];                         //added cookie info for rendering account home page
-  const userUrls = urls
-  
-  const user = users[userId];
-  const templateVars = {
-    urls: urlDatabase,
-    user
-  };
-  res.render("urls_index", templateVars);
+  const userUrls = urlsForUser(id, urlDatabase);
+  const user = findUserById(id, users);
+
+  if (!id || !user) {
+    res.send("Please sign or register for access.");
+    return;
+  }
+
+  if (user) {
+    const templateVars = {
+      urls: userUrls,
+      user
+    };
+    res.render("urls_index", templateVars);
+  }
 });
 
 
@@ -103,7 +121,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user
   };
   res.render("urls_show", templateVars);
@@ -112,7 +130,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(longURL);
 });
 
