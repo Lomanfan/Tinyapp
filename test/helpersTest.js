@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { findUserByEmail } = require('../helpers/helpers.js');
+const { findUserByEmail, findUserById } = require('../helpers/helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -31,3 +31,20 @@ describe('findUserByEmail', function() {
 
 });
 
+
+
+describe('findUserById', function() {
+  it('should return an user object when passing in an user id', function () {
+    const user = findUserById("userRandomID", testUsers);
+    const expectedOutput = testUsers.userRandomID;
+    assert.equal(expectedOutput, user);
+  });
+
+
+  it('should return false when passing in an invalid Id', function() {
+    const user = findUserById("user1122Id", testUsers);
+    const expectedOutput = false;
+    assert.equal(expectedOutput, user);
+  });
+
+});
