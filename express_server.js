@@ -220,14 +220,17 @@ app.post("/login", (req, res) => {
 
 
 
-app.post("/urls/new", (req, res) => {                //create newURL on page /urls/new
+app.post("/urls/new", (req, res) => {                //Create short URL and add to database
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
   const id = req.session["user_id"];
-  // const userUrls = urlsForUser(id, urlDatabase);
+
+  if (longURL.slice(0,4) !== "http") {               //Added per message from Gary.
+    res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
+    return;
+  };
 
   urlDatabase[shortURL] = { longURL: longURL, userID: id };
-  console.log(urlDatabase);                   //check if new data is saved in server
   res.redirect("/urls");
 });
 
