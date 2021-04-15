@@ -138,7 +138,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const longURL = userUrls[shortURL] && userUrls[shortURL].longURL;
 
   if(!id || !user) {
-    res.status(401).send("Please register or login to access short URL.");
+    res.status(401).send("Please register or login to access information.");
     return;
   }
 
