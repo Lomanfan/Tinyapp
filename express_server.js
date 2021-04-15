@@ -196,26 +196,18 @@ app.post("/login", (req, res) => {
 
 
 
-
-app.post("/urls", (req, res) => {                //create newURL on page /urls/new
+app.post("/urls/new", (req, res) => {                //create newURL on page /urls/new
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
+  const id = req.cookies["user_id"];
+  // const userUrls = urlsForUser(id, urlDatabase);
 
-  urlDatabase[shortURL] = longURL;
-  // console.log(urlDatabase);                   //check if new data is saved in server
-  res.redirect(`/urls/${shortURL}`);
+  urlDatabase[shortURL] = { longURL: longURL, userID: id };
+  console.log(urlDatabase);                   //check if new data is saved in server
+  res.redirect("/urls");
 });
 
 
-// METHOD 1:
-//app.post("/urls/:id/delete", (req, res) => {
-//   const shortURL = req.body.shortURL;
-//   console.log(req.body);
-//   delete urlDatabase[shortURL];
-//   res.redirect("/urls");
-// });
-
-//METHOD 2:
 
 app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
   const shortURL = req.params.shortURL;
