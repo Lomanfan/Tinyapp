@@ -85,7 +85,7 @@ app.get("/", (req, res) => {
 
 
 app.get("/urls", (req, res) => {
-  const id = req.session["user_id"];                         //added cookie info for rendering account home page
+  const id = req.session["user_id"];                     //My URL Account Page
   const userUrls = urlsForUser(id, urlDatabase);
   const user = findUserById(id, users);
 
@@ -103,21 +103,21 @@ app.get("/urls", (req, res) => {
 });
 
 
-app.get("/register", (req, res) => {
+app.get("/register", (req, res) => {                   //TO BE CHECKED & TESTED!!!!!!!!!
   res.render("urls_register");
 });
 
 
-app.get("/login", (req, res) => {
+app.get("/login", (req, res) => {                      //TO BE CHECKED & TESTED!!!!!!!!!!
   res.render("urls_login");
 })
 
 
-app.get("/urls/new", (req, res) => {
-  const id = req.session["user_id"];                         //added cookie info for rendering account home page
+app.get("/urls/new", (req, res) => {                   //Create new TinyURL Page
+  const id = req.session["user_id"];                  
   const user = findUserById(id, users);
 
-  if (!id || !user) {
+  if (!id || !user) {                                  //If user is not logged in, redirect to login page
     res.redirect("/urls");
     return;
   }
