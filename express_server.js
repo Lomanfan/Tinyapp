@@ -108,7 +108,7 @@ app.get("/register", (req, res) => {                   //TO BE CHECKED & TESTED!
 });
 
 
-app.get("/login", (req, res) => {                      //TO BE CHECKED & TESTED!!!!!!!!!!
+app.get("/login", (req, res) => {                      
   const id = req.session["user_id"];
   const user = findUserById(id, users);
 
