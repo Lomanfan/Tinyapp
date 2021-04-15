@@ -93,7 +93,6 @@ app.get("/urls", (req, res) => {
     res.send("Please sign or register for access.");
     return;
   }
-
   if (user) {
     const templateVars = {
       urls: userUrls,
@@ -144,12 +143,16 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 
-app.get("/u/:shortURL", (req, res) => {
+app.get("/u/:shortURL", (req, res) => {   //If URL of given ID exists redirect to longURL, or response with error message.
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(longURL);
+  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;   //Locate corresponding longURL in account
+  
+  if (longURL) {
+    res.redirect(longURL);
+    return;
+  }
+  res.send("No record found for this short url.");
 });
-
 
 
 
