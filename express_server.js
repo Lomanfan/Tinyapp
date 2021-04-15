@@ -131,12 +131,25 @@ app.get("/urls/new", (req, res) => {                   //Create new TinyURL Page
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const userId = req.session["user_id"];                         //added cookie info for rendering account home page
-  const user = users[userId];
+  const id = req.session["user_id"];
+  const user = findUserById(id, users);
+  const userUrls = urlsForUser(id, urlDatabase);
+  const shortURL = req.params.shortURL;
+  const longURL = userUrls[shortURL] && userUrls[shortURL].longURL;
+
+  if(!id || !user) {
+    res.status(401).send("Please register or login to access short URL.");
+    return;
+  }
+
+  if (!longURL) {     //If user makes a get request with an URL that is not in their account, response with an error message.
+    res.send(`There's no record of this shortURL: ${shortURL} in your account.`)
+    return;
+  }
 
   const templateVars = {
-    shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL].longURL,
+    shortURL,
+    longURL,
     user
   };
   res.render("urls_show", templateVars);
@@ -234,8 +247,21 @@ app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
 });
 
 
-app.post("/urls/:shortURL", (req, res) => {          //edit URL
+app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
+  const id = req.session.user_id;
+  const user = findUserById(id, users);
   const newLongURL = req.body.newLongURL;
+
+  if (!id || !user) {                                 //Added because error message prompts after server timeout and disconnection. 
+    res.status(500).send("Session has been ended by server. Please register and try again.");
+    return;
+  }
+
+  if (newLongURL.slice(0,4) !== "http") {             //Added per message from Gary.
+    res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
+    return;
+  };
+
   urlDatabase[req.params.shortURL].longURL = newLongURL;
   res.redirect('/urls');
 });
