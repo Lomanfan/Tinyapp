@@ -73,10 +73,11 @@ const urlsForUser = (cookieId, urlDatabase) => {
 };
 
 
+//GET ROUTES:
 app.get("/", (req, res) => {
-  const id = req.session["user_id"];
-  if(!id) {
-    res.redirect("/login");
+  const userId = req.session["user_id"];
+  if(!userId) {
+    res.redirect("/login");                             //If not login, redirect to login page
     return;
   }
   res.redirect("/urls");
