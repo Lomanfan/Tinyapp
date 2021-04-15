@@ -11,7 +11,8 @@ const bcrypt = require('bcryptjs');
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieSession({ name: 'session', keys: ['happyFace', 'grumpyCat']
+app.use(cookieSession({
+  name: 'session', keys: ['happyFace', 'grumpyCat']
 }));
 
 
@@ -76,7 +77,7 @@ const urlsForUser = (cookieId, urlDatabase) => {
 //GET ROUTES:
 app.get("/", (req, res) => {
   const userId = req.session["user_id"];
-  if(!userId) {
+  if (!userId) {
     res.redirect("/login");                             //If not login, redirect to login page
     return;
   }
@@ -103,12 +104,19 @@ app.get("/urls", (req, res) => {
 });
 
 
-app.get("/register", (req, res) => {                   //TO BE CHECKED & TESTED!!!!!!!!!
+app.get("/register", (req, res) => {
+  const id = req.session["user_id"];
+  const user = findUserById(id, users);
+  
+  if (user) {
+    res.redirect("/urls");
+    return;
+  }
   res.render("urls_register");
 });
 
 
-app.get("/login", (req, res) => {                      
+app.get("/login", (req, res) => {                    //If user is logged in, direct to main page; else return to login page   
   const id = req.session["user_id"];
   const user = findUserById(id, users);
 
@@ -123,7 +131,7 @@ app.get("/login", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => {                   //Create new TinyURL Page
-  const id = req.session["user_id"];                  
+  const id = req.session["user_id"];
   const user = findUserById(id, users);
 
   if (!id || !user) {                                  //If user is not logged in, redirect to login page
@@ -146,7 +154,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
   const longURL = userUrls[shortURL] && userUrls[shortURL].longURL;
 
-  if(!id || !user) {
+  if (!id || !user) {
     res.status(401).send("Please register or login to access information.");
     return;
   }
@@ -168,7 +176,7 @@ app.get("/urls/:shortURL", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {   //If URL of given ID exists redirect to longURL, or response with error message.
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;   //Locate corresponding longURL in account
-  
+
   if (longURL) {
     res.redirect(longURL);
     return;
@@ -234,7 +242,7 @@ app.post("/urls/new", (req, res) => {                //Create short URL and add 
   const shortURL = generateRandomString();
   const id = req.session["user_id"];
 
-  if (longURL.slice(0,4) !== "http") {               //Added per message from Gary.
+  if (longURL.slice(0, 4) !== "http") {               //Added per message from Gary.
     res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
     return;
   };
@@ -269,7 +277,7 @@ app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
     return;
   }
 
-  if (newLongURL.slice(0,4) !== "http") {             //Added per message from Gary.
+  if (newLongURL.slice(0, 4) !== "http") {             //Added per message from Gary.
     res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
     return;
   };
