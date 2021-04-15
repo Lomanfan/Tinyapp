@@ -236,7 +236,7 @@ app.post("/urls/new", (req, res) => {                //Create short URL and add 
 
 
 
-app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
+app.post("/urls/:shortURL/delete", (req, res) => {   //Delete, only logged in user that owns the URL can delete the URL.
   const shortURL = req.params.shortURL;
   const id = req.session["user_id"];
   const user = findUserById(id, users);
