@@ -109,7 +109,16 @@ app.get("/register", (req, res) => {                   //TO BE CHECKED & TESTED!
 
 
 app.get("/login", (req, res) => {                      //TO BE CHECKED & TESTED!!!!!!!!!!
-  res.render("urls_login");
+  const id = req.session["user_id"];
+  const user = findUserById(id, users);
+
+  if (user) {
+    res.redirect("/urls");
+    return;
+  }
+
+  const templateVars = { user: null };
+  res.render('urls_login', templateVars);
 })
 
 
