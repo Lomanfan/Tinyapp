@@ -74,7 +74,7 @@ const urlsForUser = (cookieId, urlDatabase) => {
 
 
 app.get("/", (req, res) => {
-  const id = req.cookies["user_id"];
+  const id = req.session["user_id"];
   if(!id) {
     res.redirect("/login");
     return;
@@ -84,7 +84,7 @@ app.get("/", (req, res) => {
 
 
 app.get("/urls", (req, res) => {
-  const id = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const id = req.session["user_id"];                         //added cookie info for rendering account home page
   const userUrls = urlsForUser(id, urlDatabase);
   const user = findUserById(id, users);
 
@@ -114,7 +114,7 @@ app.get("/login", (req, res) => {
 
 
 app.get("/urls/new", (req, res) => {
-  const id = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const id = req.session["user_id"];                         //added cookie info for rendering account home page
   const user = findUserById(id, users);
 
   if (!id || !user) {
@@ -131,7 +131,7 @@ app.get("/urls/new", (req, res) => {
 
 
 app.get("/urls/:shortURL", (req, res) => {
-  const userId = req.cookies["user_id"];                         //added cookie info for rendering account home page
+  const userId = req.session["user_id"];                         //added cookie info for rendering account home page
   const user = users[userId];
 
   const templateVars = {
@@ -171,7 +171,7 @@ app.post("/register", (req, res) => {
         password
       };
       console.log("register route new user", users);
-      res.cookie("user_id", userId);           //user_id cookie with new generated ID
+      req.session["user_id"] = users[userId].id;   //user_id cookie with new generated ID
       res.redirect("/urls");
       return;
     }
@@ -194,7 +194,7 @@ app.post("/login", (req, res) => {
   }
 
   if (userId && password === users[userId].password) {
-    res.cookie("user_id", userId);             //set cookie to username when press login button (no login page yet)
+    req.session["user_id"] = userId;          //set cookie to username when press login button (no login page yet)
     res.redirect("/urls");
   }
 
@@ -206,7 +206,7 @@ app.post("/login", (req, res) => {
 app.post("/urls/new", (req, res) => {                //create newURL on page /urls/new
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
-  const id = req.cookies["user_id"];
+  const id = req.session["user_id"];
   // const userUrls = urlsForUser(id, urlDatabase);
 
   urlDatabase[shortURL] = { longURL: longURL, userID: id };
@@ -218,7 +218,7 @@ app.post("/urls/new", (req, res) => {                //create newURL on page /ur
 
 app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
   const shortURL = req.params.shortURL;
-  const id = req.cookies["user_id"];
+  const id = req.session["user_id"];
   const user = findUserById(id, users);
   const userUrls = urlsForUser(id, urlDatabase);
 
@@ -238,7 +238,7 @@ app.post("/urls/:shortURL", (req, res) => {          //edit URL
 
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");                      //clear cookie when logout
+  req.session = null;                   //clear cookie when logout
   res.redirect("urls");
 });
 
