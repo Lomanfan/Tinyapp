@@ -304,7 +304,7 @@ app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
 
 app.post("/logout", (req, res) => {                 //Logout and delete cookie
   req.session = null;
-  res.redirect("/login");
+  res.redirect("/urls");
 });
 
 
