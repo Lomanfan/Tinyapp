@@ -1,12 +1,13 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieSession = require('cookie-session')
+const cookieSession = require('cookie-session');
 const morgan = require('morgan');
 const app = express();
 const PORT = process.env.PORT || 8080;
 const { restart } = require('nodemon');
 const { response } = require("express");
 const bcrypt = require('bcryptjs');
+const methodOverride = require("method-override");
 
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
@@ -14,6 +15,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session', keys: ['happyFace', 'grumpyCat']
 }));
+app.use(methodOverride("_method"));
 
 
 const urlDatabase = {
@@ -29,13 +31,13 @@ const users = {
     id: '2cc689',
     name: 'GoofyGoat',
     email: 'smilie001@sillygoof.com',
-    password: 'Meh-meh',         //password has been encrypted
+    password: 'Meh-meh'        //password has been encrypted
   },
   '2cc688': {
     id: '2cc688',
     name: 'GrumpyCat',
     email: 'goodmorning.nosuchthing@fish.ca',
-    password: 'whereismycoffee',  //password has been encrypted
+    password: 'whereismycoffee'  //password has been encrypted
   }
 };
 
@@ -186,6 +188,7 @@ app.get("/u/:shortURL", (req, res) => {   //If URL of given ID exists redirect t
 
 
 
+//POST ROUTES:
 app.post("/register", (req, res) => {
   const name = req.body.username;
   const { email, password } = req.body;
@@ -225,7 +228,6 @@ app.post("/register", (req, res) => {
 });
 
 
-
 app.post("/login", (req, res) => {
   const { email, password } = req.body;
   const userId = findUserByEmail(email, users);
@@ -251,7 +253,6 @@ app.post("/login", (req, res) => {
 });
 
 
-
 app.post("/urls/new", (req, res) => {                //Create short URL and add to database
   const longURL = req.body.longURL;
   const shortURL = generateRandomString();
@@ -267,8 +268,7 @@ app.post("/urls/new", (req, res) => {                //Create short URL and add 
 });
 
 
-
-app.post("/urls/:shortURL/delete", (req, res) => {   //Delete, only logged in user that owns the URL can delete the URL.
+app.delete("/urls/:shortURL", (req, res) => {   //Delete, only logged in user that owns the URL can delete the URL.
   const shortURL = req.params.shortURL;
   const id = req.session["user_id"];
   const user = findUserById(id, users);
