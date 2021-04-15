@@ -22,7 +22,7 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
   b2xVn2: { longURL: "https://http.cat", userID: "2cc688" },
-  b2xXXX: { longURL: "https://goofygoat.ca", userID: "2cc689" },
+  b2xXXX: { longURL: "https://goofygoat.ca", userID: "2cc688" },
 };
 
 
@@ -80,7 +80,7 @@ const urlsForUser = (cookieId, urlDatabase) => {
 app.get("/", (req, res) => {
   const userId = req.session["user_id"];
   if (!userId) {
-    res.redirect("/login");                             //If not login, redirect to login page
+    res.redirect("/login");                              //If not login, redirect to login page
     return;
   }
   res.redirect("/urls");
@@ -201,24 +201,17 @@ app.post("/register", (req, res) => {
   if (!user) {
     if (name, email, password) {
       const userId = generateRandomString();
-      bcrypt.genSalt(10)
-      .then((salt) => {
-        return bcrypt.hash(password, salt);
-      })
-      .then((hash) => {
-        users[userId] = {
-          id: userId,
-          name,
-          email,
-          password: hash
-        };
-        console.log("user",users[userId]);
-        console.log("hashed pw",password);
+      const hashPassword = bcrypt.hashSync(password, 10);
+      users[userId] = {
+        id: userId,
+        name,
+        email,
+        password: hashPassword
+      };
 
-        req.session["user_id"] = users[userId].id;
-        res.redirect("/urls");    //Redirect to "/urls" after registration, per project requirements (bypassed "/login");
-        return;
-      });
+      req.session["user_id"] = users[userId].id;
+      res.redirect("/urls");    //Redirect to "/urls" after registration, per project requirements (bypassed "/login");
+      return;
     }
   }
 
@@ -249,7 +242,6 @@ app.post("/login", (req, res) => {
       res.status(403).send("Hi there~ Please enter valid username and password. Not an user yet? Return to previous page & Sign up today~!")
       }
   });
-
 });
 
 
@@ -282,7 +274,7 @@ app.delete("/urls/:shortURL", (req, res) => {   //Delete, only logged in user th
 });
 
 
-app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
+app.post("/urls/:shortURL", (req, res) => {           //Edit longURL in account
   const id = req.session.user_id;
   const user = findUserById(id, users);
   const newLongURL = req.body.newLongURL;
@@ -302,7 +294,7 @@ app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
 });
 
 
-app.post("/logout", (req, res) => {                 //Logout and delete cookie
+app.post("/logout", (req, res) => {                 //Logout and delete cookie, redirect to /urls per requirement.
   req.session = null;
   res.redirect("/urls");
 });
@@ -315,34 +307,3 @@ app.listen(PORT, (err) => {
     console.log(`Example app listening on port ${PORT}!`);
   }
 });
-
-
-        // app.get("/urls.json", (req, res) => {
-        //   res.json(urlDatabase);           //response with urlDatabase with JSON string;
-        // });
-
-        // app.get("/hello", (req, res) => {
-        //   res.send("<html><body>Hello <b>World</b></body></html>\n");
-        // });
-
-        // app.get("/set", (req, res) => {
-        //   const a = 1;
-        //   res.send(`a = ${a}`);
-        // });
-
-        // app.get("/fetch", (req, res) => {
-        //   res.send(`a = ${a}`);
-        // });
-
-        // app.post("/urls", (req, res) => {
-        //   console.log(req.body);  // Log the POST request body to the console
-        //   res.send("Ok");         // Respond with 'Ok' (we will replace this)
-        // });
-
-        //curl -i http://localhost:8080/hello
-        //curl -i http://localhost:8080/u/b2xVn2
-        //curl -L http://localhost:8080/u/b2xVn2
-        //curl -X POST "http://localhost:8080/urls/9sm5xK/delete" //delete from curl
-        //curl -X POST http://example.com/api/endpoint // make a post request
-        //curl -X POST -i localhost:8080/urls/sgq3y6/delete // update route so that only logged user can delete urls, use this curl command for testing
-        //the HTML content that the /hello path responds with: <html><body>Hello <b>World</b></body></html>
