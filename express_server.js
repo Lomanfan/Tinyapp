@@ -1,13 +1,18 @@
 const express = require("express");
-const app = express();
-const PORT = 8080;
 const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "ejs");
-// app.use(morgan("dev"));
+const cookieSession = require('cookie-session')
+const morgan = require('morgan');
+const app = express();
+const PORT = process.env.PORT || 8080;
+const { restart } = require('nodemon');
+const { response } = require("express");
+const bcrypt = require('bcryptjs');
 
-const cookieParser = require("cookie-parser");
-app.use(cookieParser());
+app.set("view engine", "ejs");
+app.use(morgan("dev"));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(cookieSession({ name: 'session', keys: ['happyFace', 'grumpyCat']
+}));
 
 
 const urlDatabase = {
@@ -23,7 +28,7 @@ const users = {
     id: '2cc689',
     name: 'GoofyGoat',
     email: 'smilie001@sillygoof.com',
-    password: 'Meh-meh',     //password has been encrypted
+    password: 'Meh-meh',         //password has been encrypted
   },
   '2cc688': {
     id: '2cc688',
@@ -32,6 +37,7 @@ const users = {
     password: 'whereismycoffee',  //password has been encrypted
   }
 };
+
 
 const generateRandomString = () => {
   const shortURL = Math.random().toString(36).substring(2, 8);
@@ -42,6 +48,15 @@ const generateRandomString = () => {
 const findUserById = (id, users) => {
   if (users[id]) {
     return users[id];
+  }
+  return false;
+};
+
+const findUserByEmail = (email, users) => {
+  for (const userId in users) {
+    if (users[userId].email === email) {
+      return users[userId].id;
+    }
   }
   return false;
 };
@@ -135,14 +150,6 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 
-const findUserByEmail = (email, users) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {                    // FOR IN LOOP????
-      return users[userId].id;
-    }
-  }
-  return false;
-};
 
 
 app.post("/register", (req, res) => {
@@ -272,4 +279,5 @@ app.listen(PORT, (err) => {
         //curl -L http://localhost:8080/u/b2xVn2
         //curl -X POST "http://localhost:8080/urls/9sm5xK/delete" //delete from curl
         //curl -X POST http://example.com/api/endpoint // make a post request
+        //curl -X POST -i localhost:8080/urls/sgq3y6/delete // update route so that only logged user can delete urls, use this curl command for testing
         //the HTML content that the /hello path responds with: <html><body>Hello <b>World</b></body></html>
