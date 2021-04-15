@@ -198,23 +198,30 @@ app.post("/register", (req, res) => {
   if (!user) {
     if (name, email, password) {
       const userId = generateRandomString();
-      users[userId] = {                            //add new user
-        id: userId,
-        name,
-        email,
-        password
-      };
-      console.log("register route new user", users);
-      req.session["user_id"] = users[userId].id;   //user_id cookie with new generated ID
-      res.redirect("/urls");
-      return;
+      bcrypt.genSalt(10)
+      .then((salt) => {
+        return bcrypt.hash(password, salt);
+      })
+      .then((hash) => {
+        users[userId] = {
+          id: userId,
+          name,
+          email,
+          password: hash
+        };
+        console.log("user",users[userId]);
+        console.log("hashed pw",password);
+
+        req.session["user_id"] = users[userId].id;
+        res.redirect("/urls");    //Redirect to "/urls" after registration, per project requirements (bypassed "/login");
+        return;
+      });
     }
   }
 
   if (user) {
     res.status(400).send("If you are a current user, please return to login page.");
   }
-
 });
 
 
@@ -225,14 +232,22 @@ app.post("/login", (req, res) => {
 
   if (!userId) {
     res.status(403).send("Not an user yet? Return to previous page & Sign up today~!");
+    return;
   }
 
-  if (userId && password === users[userId].password) {
-    req.session["user_id"] = userId;          //set cookie to username when press login button (no login page yet)
-    res.redirect("/urls");
-  }
+  bcrypt.compare(password,users[userId].password)
+    .then((result) => {
+      if (result) {
+        console.log("check login password",password);
+        console.log("from login/users[userId].password",users[userId].password);
 
-  res.status(403).send("Hi there~ Please enter valid username and password. Not an user yet? Return to previous page & Sign up today~!")
+        req.session["user_id"] = userId;
+        res.redirect("/urls");
+      } else {
+      res.status(403).send("Hi there~ Please enter valid username and password. Not an user yet? Return to previous page & Sign up today~!")
+      }
+  });
+
 });
 
 
@@ -287,9 +302,9 @@ app.post("/urls/:shortURL", (req, res) => {          //Edit longURL in account
 });
 
 
-app.post("/logout", (req, res) => {
-  req.session = null;                   //clear cookie when logout
-  res.redirect("urls");
+app.post("/logout", (req, res) => {                 //Logout and delete cookie
+  req.session = null;
+  res.redirect("/login");
 });
 
 
