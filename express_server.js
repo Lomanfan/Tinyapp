@@ -42,7 +42,6 @@ const users = {
 };
 
 
-
 //GET ROUTES:
 app.get("/", (req, res) => {
   const userId = req.session["user_id"];
@@ -217,10 +216,11 @@ app.post("/urls/new", (req, res) => {                //Create short URL and add 
   const shortURL = generateRandomString();
   const id = req.session["user_id"];
 
-  if (longURL.slice(0, 4) !== "http") {               //Added per message from Gary.
-    res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
-    return;
-  };
+  if (!longURL.startsWith("http://") && !longURL.startsWith("https://")) {    //Added per message from Gary on checking http:// and https://.
+      res.send("Please include 'http:// or https://' when entering long url. Return to previous page and try again~!");
+      return;
+    // };
+  }
 
   urlDatabase[shortURL] = { longURL: longURL, userID: id };
   res.redirect("/urls");
@@ -247,12 +247,12 @@ app.post("/urls/:shortURL", (req, res) => {           //Edit longURL in account
   const newLongURL = req.body.newLongURL;
 
   if (!id || !user) {                                 //Added because error message prompts after server timeout and disconnection. 
-    res.status(500).send("Session has been ended by server. Please register and try again.");
+    res.status(500).send("Server disconnected. Please register and try again.");
     return;
   }
 
-  if (newLongURL.slice(0, 4) !== "http") {             //Added per message from Gary.
-    res.send("Please include 'http://' when entering long url. Return to previous page and try again~!");
+  if (!newLongURL.startsWith("http://") && !newLongURL.startsWith("https://")) {    //Added per message from Gary on checking http:// and https://.
+    res.send("Please include 'http:// or https://' when entering long url. Return to previous page and try again~!");
     return;
   };
 
