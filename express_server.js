@@ -8,7 +8,7 @@ const { restart } = require('nodemon');
 const { response } = require("express");
 const bcrypt = require('bcryptjs');
 const methodOverride = require("method-override");
-
+const { urlsForUser, findUserById, findUserByEmail, generateRandomString } = require("./helpers/helpers");
 app.set("view engine", "ejs");
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -31,7 +31,7 @@ const users = {
     id: '2cc689',
     name: 'GoofyGoat',
     email: 'smilie001@sillygoof.com',
-    password: 'Meh-meh'        //password has been encrypted
+    password: 'Meh-meh'          //password has been encrypted
   },
   '2cc688': {
     id: '2cc688',
@@ -41,39 +41,6 @@ const users = {
   }
 };
 
-
-const generateRandomString = () => {
-  const shortURL = Math.random().toString(36).substring(2, 8);
-  return shortURL;
-};
-
-
-const findUserById = (id, users) => {
-  if (users[id]) {
-    return users[id];
-  }
-  return false;
-};
-
-const findUserByEmail = (email, users) => {
-  for (const userId in users) {
-    if (users[userId].email === email) {
-      return users[userId].id;
-    }
-  }
-  return false;
-};
-
-
-const urlsForUser = (cookieId, urlDatabase) => {
-  const userUrls = {};
-  for (const shortUrl in urlDatabase) {
-    if (urlDatabase[shortUrl].userID === cookieId) {
-      userUrls[shortUrl] = urlDatabase[shortUrl];
-    }
-  }
-  return userUrls;
-};
 
 
 //GET ROUTES:
@@ -294,7 +261,7 @@ app.post("/urls/:shortURL", (req, res) => {           //Edit longURL in account
 });
 
 
-app.post("/logout", (req, res) => {                 //Logout and delete cookie, redirect to /urls per requirement.
+app.post("/logout", (req, res) => {                 //Logout and delete cookie, redirect to /urls per requirement instead of /login page.
   req.session = null;
   res.redirect("/urls");
 });
