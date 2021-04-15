@@ -1,13 +1,10 @@
-
-
-const findUserById = (users, id) => {
-  for (let userId in users) {
-    if (users[userId].id === id) {
-      return users[userId].id;
-    }
+const findUserById = (id, users) => {
+  if (users[id]) {
+    return users[id];
   }
   return false;
 };
+
 
 const findUserByEmail = (email, users) => {
   for (const userId in users) {
@@ -17,6 +14,7 @@ const findUserByEmail = (email, users) => {
   }
   return false;
 };
+
 
 const generateRandomString = () => {
   const shortURl = Math.random().toString(36).substring(2, 8);
@@ -35,5 +33,6 @@ const urlsForUser = (cookieId, urlDatabase) => {
 };
 
 
-
 module.exports = { urlsForUser, findUserById, findUserByEmail, generateRandomString };
+
+
