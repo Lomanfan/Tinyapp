@@ -211,9 +211,15 @@ app.post("/urls/new", (req, res) => {                //create newURL on page /ur
 
 app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
   const shortURL = req.params.shortURL;
-  console.log(req.params);
-  delete urlDatabase[shortURL];
-  res.redirect("/urls");
+  const id = req.cookies["user_id"];
+  const user = findUserById(id, users);
+  const userUrls = urlsForUser(id, urlDatabase);
+
+  if (user && userUrls[shortURL]) {
+    delete urlDatabase[shortURL];
+    res.redirect("/urls");
+  }
+  res.send("No record found of this shortURL.");
 });
 
 
