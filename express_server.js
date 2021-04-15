@@ -241,7 +241,7 @@ app.delete("/urls/:shortURL", (req, res) => {   //Delete, only logged in user th
 });
 
 
-app.post("/urls/:shortURL", (req, res) => {           //Edit longURL in account
+app.put("/urls/:shortURL", (req, res) => {           //Edit longURL in account
   const id = req.session.user_id;
   const user = findUserById(id, users);
   const newLongURL = req.body.newLongURL;
