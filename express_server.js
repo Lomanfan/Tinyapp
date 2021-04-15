@@ -225,10 +225,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {   //delete URL from home page
 
 app.post("/urls/:shortURL", (req, res) => {          //edit URL
   const newLongURL = req.body.newLongURL;
-  urlDatabase[req.params.shortURL] = newLongURL;
+  urlDatabase[req.params.shortURL].longURL = newLongURL;
   res.redirect('/urls');
 });
-
 
 
 app.post("/logout", (req, res) => {
